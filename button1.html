@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cha-Ching Button</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <style>
+        /* Custom styles for a more button-like feel */
+        .cha-ching-button {
+            transition: all 0.1s ease-in-out;
+            box-shadow: 0 8px 0 #c0392b, 0 12px 20px rgba(0,0,0,0.3);
+        }
+        .cha-ching-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #c0392b, 0 8px 10px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body class="bg-transparent h-screen flex items-center justify-center antialiased">
+
+    <button id="chaChingBtn" class="cha-ching-button bg-red-600 hover:bg-red-700 text-white font-bold py-8 px-16 rounded-full text-4xl cursor-pointer select-none">
+        PUSH
+    </button>
+
+    <script>
+        const button = document.getElementById('chaChingBtn');
+        let audioReady = false;
+
+        // --- Sound Synthesis with Tone.js ---
+        // We'll create a sound that mimics a cash register "cha-ching"
+        const metalSynth = new Tone.MetalSynth({
+            frequency: 120,
+            envelope: { attack: 0.001, decay: 0.1, release: 0.1 },
+            harmonicity: 8.1,
+            modulationIndex: 40,
+            resonance: 800,
+            octaves: 1.5
+        }).toDestination();
+
+        const fmSynth = new Tone.FMSynth({
+            harmonicity: 3,
+            modulationIndex: 20,
+            envelope: { attack: 0.01, decay: 0.2, sustain: 0.01, release: 0.8 },
+            modulationEnvelope: { attack: 0.01, decay: 0.1, sustain: 0.01, release: 0.2 }
+        }).toDestination();
+        
+        // This function plays the synthesized sound
+        function playChaChing() {
+            if (!audioReady) return;
+            
+            // "Cha" sound - a quick metallic hit
+            metalSynth.triggerAttackRelease("C4", "8n");
+
+            // "Ching" sound - a higher-pitched, ringing bell sound
+            fmSynth.triggerAttackRelease("C6", "4n", Tone.now() + 0.08);
+        }
+
+        // --- Event Listener ---
+        button.addEventListener('click', () => {
+            // Tone.js requires a user interaction to start the audio context.
+            // This happens only once on the first click.
+            if (!audioReady) {
+                Tone.start();
+                audioReady = true;
+                console.log('Audio context started.');
+            }
+            playChaChing();
+
+            // Visual feedback
+            button.classList.add('transform', 'translate-y-1');
+            setTimeout(() => {
+                button.classList.remove('transform', 'translate-y-1');
+            }, 100);
+        });
+
+    </script>
+</body>
+</html>
